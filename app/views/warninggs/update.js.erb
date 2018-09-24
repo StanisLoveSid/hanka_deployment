@@ -1,0 +1,10 @@
+$("#<%= @warningg.id %>_begining").text("<%= @warningg.begining.to_datetime.strftime('%H:%M') %>");
+$("#<%= @warningg.id %>_ending").text("<%= @warningg.ending.to_datetime.strftime('%H:%M') %>");
+$("#<%= @warningg.id %>_reason").text("<%= @warningg.reason %>");
+$("#<%= @warningg.id %>_description").text("<%= @warningg.description %>");
+$("#lineChart").html('<%= j render "line_chart" %>');
+$("#pieChart").html('<%= j render "pie_chart" %>');
+window.location.href = '#lineChart'
+$("#herewarning").remove();
+$("#therewarning").append("<div id='herewarning'></div>");
+$("#notifier").text("warning is succsessfully updated");

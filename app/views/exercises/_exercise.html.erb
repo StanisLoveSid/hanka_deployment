@@ -1,0 +1,45 @@
+<table class="table table-hover" id="tableExercise">
+  <thead class="black white-text">
+    <tsr>
+      <th scope="col">Status</th>
+      <th scope="col">Description</th>
+      <th scope="col">Duration</th>
+      <th scope="col">Begining</th>
+      <th scope="col">Ending</th>
+      <th scope="col">Edit</th>
+      <th scope="col">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+<% @day.exercises.each do |exercise| %> 
+
+
+<div class="modal fade" id="exerciseModal_<%= exercise.id %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Exercise description</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="<%=exercise.id %>_description">
+        <%= exercise.description == nil ? "There is no description yet" : exercise.description %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <tr id="exercise_<%=exercise.id %>">
+      <th scope="row" id="<%=exercise.id %>_status"><%= exercise.status %></th>
+      <td><a href="#" data-toggle="modal" data-target="#exerciseModal_<%= exercise.id %>">Read</a></td>
+      <td id="<%=exercise.id %>_duration"><%= (exercise.duration * 60).to_i %> mins</td>
+      <td id="<%=exercise.id %>_begining"><%= exercise.begining.to_datetime.strftime('%H:%M') %></td>
+      <td id="<%=exercise.id %>_ending"><%= exercise.ending.to_datetime.strftime('%H:%M') %></td>
+      <td><%= link_to "Edit", edit_year_month_day_exercise_path(@year, @month, @day, exercise), remote: true %></td>
+      <td><%= link_to "Delete", year_month_day_exercise_path(@year, @month, @day, exercise), method: :delete, remote: true %></td>
+    </tr>
+<% end %>
+  </tbody>
+</table>

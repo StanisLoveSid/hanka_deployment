@@ -1,0 +1,43 @@
+<table class="table table-hover" id="tableWarning">
+  <thead class="black white-text">
+    <tr>
+      <th scope="col">Reason</th>
+      <th scope="col">Description</th>
+      <th scope="col">Begining</th>
+      <th scope="col">Ending</th>
+      <th scope="col">Edit</th>
+      <th scope="col">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+<% @day.warninggs.each do |warning| %>
+
+
+<div class="modal fade" id="warningModal_<%= warning.id %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Warning description</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="<%=warning.id %>_description">
+        <%= warning.description == nil ? "There is no description yet" : warning.description %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <tr id="warning_<%=warning.id %>">
+      <th scope="row" id="<%=warning.id %>_reason"><%= warning.reason %></th>
+      <td><a href="#" data-toggle="modal" data-target="#warningModal_<%= warning.id %>">Read</a></td>
+      <td id="<%=warning.id %>_begining"><%= warning.begining.to_datetime.strftime('%H:%M') %></td>
+      <td id="<%=warning.id %>_ending"><%= warning.ending.to_datetime.strftime('%H:%M') %></td>
+      <td><%= link_to "Edit", edit_year_month_day_warningg_path(@year, @month, @day, warning), remote: true %></td>
+      <td><%= link_to "Delete", year_month_day_warningg_path(@year, @month, @day, warning), method: :delete, remote: true %></td>
+    </tr>
+<% end %>
+  </tbody>
+</table>

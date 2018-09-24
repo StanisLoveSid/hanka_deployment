@@ -1,0 +1,77 @@
+<% if user_signed_in? %>
+
+<% if current_user.role == "doctor" %>
+
+<h2>Monitoring users:</h2>
+<% current_user.pending_friends.each do |friend| %>
+<div style="margin-top: 5%;">
+<hr/>    
+<h3>Full name: <%= link_to "#{friend.full_name}", "/users/#{friend.id}/years" %></h3>
+<p>Current hospital: <%= friend.current_hospital %></p>
+</div>
+<% end %>
+
+<% unless params[:user_id].nil? %>
+<% if User.find(params[:user_id]).years.any? %>
+<div class="row">	
+<div class="list-group col-md-4 col-md-offset-4">
+<h3>Years:</h3>	
+<% User.find(params[:user_id]).years.each do |year| %>
+<% unless year.nil? %>
+<%= link_to "#{year.year_number}", "years/#{year.id}", class: "list-group-item list-group-item-action #{'active' if year.year_number == Time.now.year}" %>
+<% end %>
+<% end %>
+</div>
+</div>
+<% end %>
+<% end %>
+
+<%= paginate @users %>
+
+<% else %>
+
+<%= line_chart @total %>
+<%= pie_chart @status_hash %>
+
+<div class="row">
+<div class="col-md-4 col-md-offset-4">	
+<%= simple_form_for current_user.years.new do |f| %>
+<div class="form-group">
+<%= f.input :year_number, collection: @year_collection %>
+<%= f.hidden_field :user_id, value: current_user.id %>
+</div>
+<div class="form-group">
+<%= f.submit "Add year", class: "btn btn-primary" %>
+</div>
+<% end %>
+</div>
+</div>
+
+<% if current_user.years.any? %>
+<div class="row">	
+<div class="list-group col-md-4 col-md-offset-4">
+<h3>Years:</h3>	
+<% current_user.years.each do |year| %>
+<% unless year.nil? %>
+<%= link_to "#{year.year_number}", "years/#{year.id}", class: "list-group-item list-group-item-action #{'active' if year.year_number == Time.now.year}" %>
+<% end %>
+<% end %>
+</div>
+</div>
+<% end %>
+
+<% end %>
+
+<% else %>
+
+
+<h3 class="text-center" style="color: #36820a; margin-bottom: 5%;">
+<%= t 'greetings_page.welcome' %>
+</h3>
+<%= line_chart warnings(@warning_start, @warning_end, @result, @meals_result, @insulin_result, @exercise_start, @exercise_end, @prediction) %>
+
+<%= pie_chart((@random_day_sample.sugar_levels.group(:status).count), adapter: "google") %>
+
+
+<% end %>
+

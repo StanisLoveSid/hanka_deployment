@@ -1,0 +1,22 @@
+Receiving requests:
+<p>
+<% current_user.pending_friends.each do |friend| %>
+<%= link_to "Accept friendship of #{friend.full_name}", {controller: "users", action: "accept_request", user_id: friend.id} %>
+<% end %>
+</p>
+
+<p>
+Sent requests:
+<% current_user.requested_friends.each do |requested_friend| %>
+<%= requested_friend.full_name %>
+<% end %>
+</p>
+ 
+<p>
+Friends:
+<% current_user.friends.each do |friend| %>
+<%= friend.full_name %>
+<% end %>
+</p>
+
+

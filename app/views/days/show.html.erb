@@ -1,0 +1,632 @@
+ <%= link_to "Back to month", "/years/#{@year.id}/months/#{@month.id}" %>
+ <div id="notifier"></div>
+
+ <div id="lineChart">
+<%= line_chart warnings(@warning_start, @warning_end, @result, @meals_result, @insulin_result, @exercise_start, @exercise_end, @prediction) %>
+</div>
+
+ <div id="pieChart">
+<%= pie_chart((@day.sugar_levels.group(:status).count), adapter: "google") %>
+</div>
+
+ <label class="control-label">Conclusion for the day: </label> <% if @day.compensated? %>
+              <b style="color: green"> "Compensated" </b>
+              <% else %>
+              <b style="color: red"> "Not compensated" </b>
+              <% end %>          
+
+    <%= button_to "Delete day", year_month_day_path(@year, @month, @day), class: "btn btn-primary btn-lg btn-block login-button", style: "width: 200px; ", method: :delete, data: { confirm: "Are you sure?" } %>
+
+<div class="row" style="margin-top: 3%;">
+<% @day.errors.full_messages.each do |msg| %>
+<%= msg %>
+<% end %>
+
+<div class="col-sm-4">
+<h4>Blood sugar level</h4>	
+<table class="table table-hover" id="tableSugarLevel">
+  <thead class="black white-text">
+    <tr>
+      <th scope="col">mmol</th>
+      <th scope="col">Time</th>
+      <th scope="col">Edit</th>
+      <th scope="col">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+<% @day.sugar_levels.each do |sugar_level| %>  	
+    <tr id="sugar_level_<%= sugar_level.id %>">
+      <th scope="row" id="<%=sugar_level.id %>_mmol"><%= sugar_level.mmol %></th>
+      <td id="<%=sugar_level.id %>_created_at"><%= sugar_level.created_at.strftime('%H:%M') %></td>
+      <td><%= link_to "Edit", edit_year_month_day_sugar_level_path(@year, @month, @day, sugar_level), remote: true %></td>
+      <td><%= link_to "Delete", year_month_day_sugar_level_path(@year, @month, @day, sugar_level), method: :delete, remote: true %></td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<div id="there"></div>
+<div id="here"></div>
+</div>
+
+
+<div class="col-sm-4">
+<h4>Meal</h4>
+<table class="table table-hover" id="tableMeal">
+  <thead class="black white-text">
+    <tr>
+      <th scope="col">Bread units</th>
+      <th scope="col">Description</th>
+      <th scope="col">Time</th>
+      <th scope="col">Edit</th>
+      <th scope="col">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+<% @day.meals.each do |meal| %> 
+
+<div class="modal fade" id="mealModal_<%= meal.id %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Meal description</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="<%=meal.id %>_description">
+        <%= meal.description == nil ? "There is no description yet" : meal.description %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <tr id="meal_<%= meal.id %>">
+      <th scope="row" id="<%=meal.id %>_bread_units"><%= meal.bread_units %></th>
+      <td ><a href="#" data-toggle="modal" data-target="#mealModal_<%= meal.id %>">Read</a></td>
+      <td id="<%=meal.id %>_created_at"><%= meal.created_at.strftime('%H:%M') %></td>
+      <td><%= link_to "Edit", edit_year_month_day_meal_path(@year, @month, @day, meal), remote: true %></td>
+      <td><%= link_to "Delete", year_month_day_meal_path(@year, @month, @day, meal), method: :delete, remote: true %></td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+<div id="theremeal"></div>
+<div id="heremeal"></div>
+</div>	
+
+
+
+<div class="col-sm-4">
+<h4>Insulin injection</h4>	
+<table class="table table-hover" id="tableInsulinInjection">
+  <thead class="black white-text">
+    <tr>
+      <th scope="col">Amount</th>
+      <th scope="col">Type</th>
+      <th scope="col">Time</th>
+      <th scope="col">Edit</th>
+      <th scope="col">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+<% @day.insulin_injections.each do |insulin_injection| %> 	
+    <tr id="insulin_injection_<%= insulin_injection.id %>">
+      <th scope="row" id="<%=insulin_injection.id %>_amount"><%= insulin_injection.amount %></th>
+      <td id="<%=insulin_injection.id %>_insulin_type"><%= insulin_injection.insulin_type %></td>
+      <td id="<%=insulin_injection.id %>_created_at"><%= insulin_injection.created_at.strftime('%H:%M') %></td>
+      <td><%= link_to "Edit", edit_year_month_day_insulin_injection_path(@year, @month, @day, insulin_injection), remote: true %></td>
+      <td><%= link_to "Delete", year_month_day_insulin_injection_path(@year, @month, @day, insulin_injection), method: :delete, remote: true %></td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+<div id="thereinsulininjection"></div>
+<div id="hereinsulininjection"></div>
+ </div>
+</div>
+
+
+
+
+<div class="row" style="margin-top: 3%;">
+	<div class="col-sm-6">
+		<h4>Exercises</h4>
+<table class="table table-hover" id="tableExercise">
+  <thead class="black white-text">
+    <tsr>
+      <th scope="col">Status</th>
+      <th scope="col">Description</th>
+      <th scope="col">Duration</th>
+      <th scope="col">Begining</th>
+      <th scope="col">Ending</th>
+      <th scope="col">Edit</th>
+      <th scope="col">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+<% @day.exercises.each do |exercise| %> 
+
+
+<div class="modal fade" id="exerciseModal_<%= exercise.id %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Exercise description</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="<%=exercise.id %>_description">
+        <%= exercise.description == nil ? "There is no description yet" : exercise.description %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <tr id="exercise_<%=exercise.id %>">
+      <th scope="row" id="<%=exercise.id %>_status"><%= exercise.status %></th>
+      <td><a href="#" data-toggle="modal" data-target="#exerciseModal_<%= exercise.id %>">Read</a></td>
+      <td id="<%=exercise.id %>_duration"><%= (exercise.duration * 60).to_i %> mins</td>
+      <td id="<%=exercise.id %>_begining"><%= exercise.begining.to_datetime.strftime('%H:%M') %></td>
+      <td id="<%=exercise.id %>_ending"><%= exercise.ending.to_datetime.strftime('%H:%M') %></td>
+      <td><%= link_to "Edit", edit_year_month_day_exercise_path(@year, @month, @day, exercise), remote: true %></td>
+      <td><%= link_to "Delete", year_month_day_exercise_path(@year, @month, @day, exercise), method: :delete, remote: true %></td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+<div id="thereexercise"></div>
+<div id="hereexercise"></div>
+</div>
+
+	<div class="col-sm-6">
+		<h4>Warnings</h4>
+<table class="table table-hover" id="tableWarning">
+  <thead class="black white-text">
+    <tr>
+      <th scope="col">Reason</th>
+      <th scope="col">Description</th>
+      <th scope="col">Begining</th>
+      <th scope="col">Ending</th>
+      <th scope="col">Edit</th>
+      <th scope="col">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+<% @day.warninggs.each do |warning| %>
+
+
+<div class="modal fade" id="warningModal_<%= warning.id %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Warning description</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="<%=warning.id %>_description">
+        <%= warning.description == nil ? "There is no description yet" : warning.description %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <tr id="warning_<%=warning.id %>">
+      <th scope="row" id="<%=warning.id %>_reason"><%= warning.reason %></th>
+      <td><a href="#" data-toggle="modal" data-target="#warningModal_<%= warning.id %>">Read</a></td>
+      <td id="<%=warning.id %>_begining"><%= warning.begining.to_datetime.strftime('%H:%M') %></td>
+      <td id="<%=warning.id %>_ending"><%= warning.ending.to_datetime.strftime('%H:%M') %></td>
+      <td><%= link_to "Edit", edit_year_month_day_warningg_path(@year, @month, @day, warning.id), remote: true %></td>
+      <td><%= link_to "Delete", year_month_day_warningg_path(@year, @month, @day, warning), method: :delete, remote: true %></td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+<div id="therewarning"></div>
+<div id="herewarning"></div>
+	</div>
+</div>
+
+
+
+
+<div class="row" style="margin-top: 5%; margin-bottom: 5%;">
+	<div class="col-md-4 col-md-offset-4">
+<%= form_for @day, url: { action:"predict_blood_sugar_level" }, method: :get do |form| %>
+<p>
+<label class="control-label"> <h3>Neural Network mode: </h3></label>	
+</p>
+<p>
+<b style="color: red;">*learning</b> - predict future blood sugar level due to your data	
+</p>
+<p>
+<b style="color: red;">*general</b> - predict future blood sugar level due to common rules	
+</p>
+<%= form.select :mode, ["general", "learning"],{}, {class: "form-control ra-filtering-select-input ui-autocomplete-input", style: "display: inline-block;"} %>
+				<div class="form-group">
+<%= form.button "submit", class: "btn btn-primary btn-lg btn-block login-button", id: "turbo", style: "background: #36820a;", data: {disable_with: "<i class='fa fa-spinner fa-spin'></i> Loading..."} %> 
+						</div>
+<% end %>
+</div>
+</div>
+
+ 
+<div class="row" st style="margin-bottom: 5%;">
+			<div class="col-sm-3">
+				<div class="main-login main-center" style="height: 466px;">
+				<h4>Sugar level.</h4>
+					<%= form_for([@year, @month, @day, @day.sugar_levels.build], remote: true) do |f| %>
+						
+						<div class="form-group">
+							<label for="name" class="cols-sm-2 control-label">mmol</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-tint" aria-hidden="true"></i></span>
+									<%= f.text_field :mmol, class: "form-control", placeholder: "mmol", id: "mmol" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="email" class="cols-sm-2 control-label">Time</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+									<%= f.text_field :created_at, class: "form-control", placeholder: "time", id: "timemmol" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group" style="padding-top: 175px;">
+							<%= f.submit "submit", class: "btn btn-primary btn-lg btn-block login-button" %> 
+						</div>
+						
+					<% end %>
+				</div>
+			</div>
+
+
+			<div class="col-sm-3">
+				<div class="main-login main-center" style="height: 466px;">
+				<h4>Meal.</h4>
+					<%= form_for([@year, @month, @day, @day.meals.build], remote: true ) do |f| %>
+						
+						<div class="form-group">
+							<label for="name" class="cols-sm-2 control-label">Bread units</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-cutlery" aria-hidden="true"></i></span>
+									<%= f.text_field :bread_units, class: "form-control", placeholder: "Bread units", id: "bread_units" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="name" class="cols-sm-2 control-label">Description</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-book" aria-hidden="true"></i></span>
+									<%= f.text_field :description, class: "form-control", placeholder: "description", id: "descriptionmeal" %>
+								</div>
+							</div>
+						</div>						
+
+						<div class="form-group">
+							<label for="email" class="cols-sm-2 control-label">Time</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+									<%= f.text_field :created_at, class: "form-control", placeholder: "time", id: "timemeal" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group" style="padding-top: 87px;">
+							<%= f.submit "submit", class: "btn btn-primary btn-lg btn-block login-button" %> 
+						</div>
+						
+					<% end %>
+				</div>
+			</div>
+
+
+
+			<div class="col-sm-3">
+				<div class="main-login main-center" style="height: 466px;">
+				<h4>Insulin Injection.</h4>
+					<%= form_for([@year, @month, @day, @day.insulin_injections.build], remote: true ) do |f| %>
+						
+						<div class="form-group">
+							<label for="name" class="cols-sm-2 control-label">Amount</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-medkit" aria-hidden="true"></i></span>
+									<%= f.text_field :amount, class: "form-control", id: "amount", placeholder: "Amount" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="name" class="cols-sm-2 control-label">Insulin type</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-medkit" aria-hidden="true"></i></span>
+									<%= f.select :insulin_type, @types_layout, {}, class: "form-control", id: "insulin_type", placeholder: "Insulin type" %>
+								</div>
+							</div>
+						</div>						
+
+						<div class="form-group">
+							<label for="email" class="cols-sm-2 control-label">Time</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+									<%= f.text_field :created_at, class: "form-control", placeholder: "time", id: "timeinsulin" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group" style="padding-top: 87px;">
+							<%= f.submit "submit", class: "btn btn-primary btn-lg btn-block login-button" %> 
+						</div>
+						
+					<% end %>
+				</div>
+			</div>
+
+
+
+			<div class="col-sm-3">
+				<div class="main-login main-center">
+				<h4>Exercise.</h4>
+					<%= form_for([@year, @month, @day, @day.exercises.build], remote: true ) do |f| %>
+						
+						<div class="form-group">
+							<label for="name" class="cols-sm-2 control-label">Status</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-line-chart" aria-hidden="true"></i></span>
+									<%= f.text_field :status, class: "form-control", id: "exercisestatus", placeholder: "status" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="name" class="cols-sm-2 control-label">Description</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-book" aria-hidden="true"></i></span>
+									<%= f.text_field :description, class: "form-control", id: "exercisedescription", placeholder: "description" %>
+								</div>
+							</div>
+						</div>						
+
+						<div class="form-group">
+							<label for="email" class="cols-sm-2 control-label">Time begining</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+									<%= f.text_field :begining, class: "form-control", placeholder: "time", id: "timeExerciseBegining" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="email" class="cols-sm-2 control-label">Time ending</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+									<%= f.text_field :ending, class: "form-control", placeholder: "time", id: "timeExerciseEnding" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group ">
+							<%= f.submit "submit", class: "btn btn-primary btn-lg btn-block login-button" %> 
+						</div>
+						
+					<% end %>
+				</div>
+			</div>
+
+</div>
+
+
+<div class="row">
+				<div class="col-sm-3">
+				<div class="main-login main-center">
+				<h4>Warnings.</h4>
+					<%= form_for([@year, @month, @day, @day.warninggs.build], remote: true ) do |f| %>
+						
+						<div class="form-group">
+							<label for="name" class="cols-sm-2 control-label">Reason</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-question" aria-hidden="true"></i></span>
+									<%= f.text_field :reason, class: "form-control", id: "reason", placeholder: "reason" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="name" class="cols-sm-2 control-label">Description</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-book" aria-hidden="true"></i></span>
+									<%= f.text_field :description, class: "form-control", id: "warningdescription", placeholder: "description" %>
+								</div>
+							</div>
+						</div>						
+
+						<div class="form-group">
+							<label for="email" class="cols-sm-2 control-label">Time begining</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+									<%= f.text_field :begining, class: "form-control", placeholder: "time", id: "timeWarningBegining" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="email" class="cols-sm-2 control-label">Time ending</label>
+							<div class="cols-sm-10">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+									<%= f.text_field :ending, class: "form-control", placeholder: "time", id: "timeWarningEnding" %>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group ">
+							<%= f.submit "submit", class: "btn btn-primary btn-lg btn-block login-button" %> 
+						</div>
+						
+					<% end %>
+				</div>
+			</div>
+
+</div>
+
+
+<%= render partial: "comments/comments", locals: {commentable: @day} %>
+
+<div class="row">
+<%= form_for [@year, @month, @day, Comment.new] do |f| %>
+<div class="form-group col-md-4 col-md-offset-4">
+	<h4 style="margin-bottom: 30px;">New comment</h4>
+
+	<label class="control-label">Priority: </label>
+	
+<%= f.select :status, ["Low", "Usual", "High"],{}, {class: "form-control ra-filtering-select-input ui-autocomplete-input", style: "display: inline-block;"} %>
+    <label class="control-label">Content: </label>
+    
+	<%= f.text_area :content, class: "form-control", style: "margin-bottom: 30px;" %>
+    
+    
+					<div class="form-group">
+							<%= f.submit "Add comment", class: "btn btn-primary btn-lg btn-block login-button", id: "turbo", style: "background: #d84b6b; border: #d84b6b;" %> 
+						</div>
+    
+</div>
+<% end %>
+</div>
+
+
+
+<style>
+
+html.wait, html.wait * { cursor: wait !important; }
+
+#playground-container {
+    height: 500px;
+    overflow: hidden !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+.main{
+ 	margin:50px 15px;
+}
+
+h1.title { 
+	font-size: 50px;
+	font-family: 'Passion One', cursive; 
+	font-weight: 400; 
+}
+
+hr{
+	width: 10%;
+	color: #fff;
+}
+
+.form-group{
+	margin-bottom: 15px;
+}
+
+label{
+	margin-bottom: 15px;
+}
+
+input,
+input::-webkit-input-placeholder {
+    font-size: 11px;
+    padding-top: 3px;
+}
+
+.main-login{
+ 	background-color: #fff;
+    /* shadows and rounded borders */
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+
+}
+.form-control {
+    height: auto!important;
+padding: 8px 12px !important;
+}
+.input-group {
+    -webkit-box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.21)!important;
+    -moz-box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.21)!important;
+    box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.21)!important;
+}
+#button {
+    border: 1px solid #ccc;
+    margin-top: 28px;
+    padding: 6px 12px;
+    color: #666;
+    text-shadow: 0 1px #fff;
+    cursor: pointer;
+    -moz-border-radius: 3px 3px;
+    -webkit-border-radius: 3px 3px;
+    border-radius: 3px 3px;
+    -moz-box-shadow: 0 1px #fff inset, 0 1px #ddd;
+    -webkit-box-shadow: 0 1px #fff inset, 0 1px #ddd;
+    box-shadow: 0 1px #fff inset, 0 1px #ddd;
+    background: #f5f5f5;
+    background: -moz-linear-gradient(top, #f5f5f5 0%, #eeeeee 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f5f5f5), color-stop(100%, #eeeeee));
+    background: -webkit-linear-gradient(top, #f5f5f5 0%, #eeeeee 100%);
+    background: -o-linear-gradient(top, #f5f5f5 0%, #eeeeee 100%);
+    background: -ms-linear-gradient(top, #f5f5f5 0%, #eeeeee 100%);
+    background: linear-gradient(top, #f5f5f5 0%, #eeeeee 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f5f5f5', endColorstr='#eeeeee', GradientType=0);
+}
+.main-center{
+ 	margin-top: 30px;
+ 	margin: 0 auto;
+ 	max-width: 400px;
+    padding: 2px 14px;
+	background:#009edf;
+	color: #FFF;
+    text-shadow: none;
+	-webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.31);
+    -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.31);
+    box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.31);
+
+}
+span.input-group-addon i {
+    color: #009edf;
+    font-size: 17px;
+}
+
+.login-button{
+	margin-top: 5px;
+}
+
+.login-register{
+	font-size: 11px;
+	text-align: center;
+}
+</style>
+
+
+

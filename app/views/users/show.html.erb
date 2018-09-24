@@ -1,0 +1,11 @@
+<%= @user.email %>
+
+<%= friendship(@user, current_user)%>
+
+<% @user.friends.each do |friend| %>
+<%= friend.email %>
+<% end %>
+
+<% @user.years.each do |year| %>
+<%= link_to year.year_number, year_path(year) %>
+<% end %>
