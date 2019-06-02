@@ -4,20 +4,12 @@ class ExercisesController < ApplicationController
 
   def create
     @day = Day.find(params[:day_id])
+    Exercise::Create.call(params, day: @day)
     @month = Month.find(@day.month_id)
     @year = Year.find(@month.year_id)
-    @day.exercises.create(exercise_params)
-    last_exercise = @day.exercises.last
-    duration = TimeDifference.between(last_exercise.begining, last_exercise.ending).in_hours
-    time_creation_begining = "#{@day.created_at.year}"+"-"+
-      "#{@day.created_at.month}"+"-"+"#{@day.created_at.day} #{params[:exercise][:begining]}"
-    time_creation_ending = "#{@day.created_at.year}"+"-"+
-      "#{@day.created_at.month}"+"-"+"#{@day.created_at.day} #{params[:exercise][:ending]}"
-    last_exercise.update(duration: duration, begining: time_creation_begining,
-                         ending: time_creation_ending, created_at: time_creation_begining,
-                         updated_at: time_creation_ending)
     scopes(@day)
     @exercise = @day.exercises.last(2).first
+
     respond_to do |format|
       format.js
     end
