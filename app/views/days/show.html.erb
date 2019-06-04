@@ -6,7 +6,7 @@
 </div>
 
  <div id="pieChart">
-<%= pie_chart((@day.sugar_levels.group(:status).count), adapter: "google") %>
+<%= pie_chart((@day.sugar_levels.group(:status).count)) %>
 </div>
 
  <label class="control-label">Conclusion for the day: </label> <% if @day.compensated? %>
@@ -392,6 +392,7 @@
 								<div class="input-group">
 									<span class="input-group-addon"><i class="fa fa-line-chart" aria-hidden="true"></i></span>
 									<%= f.text_field :status, class: "form-control", id: "exercisestatus", placeholder: "status" %>
+                  <%= f.hidden_field :day_id, value: @day.id %>
 								</div>
 							</div>
 						</div>

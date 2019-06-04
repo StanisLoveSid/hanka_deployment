@@ -1,6 +1,6 @@
 <%= link_to "Back to year", "/years/#{@year.id}" %>
 <%= line_chart @total %>
-<%= pie_chart(@status_hash, adapter: "google") %>
+<%= pie_chart(@status_hash) %>
 
 
 <div class="row" style="margin-top: 8%;">	
