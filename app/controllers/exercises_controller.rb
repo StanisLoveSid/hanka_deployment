@@ -3,12 +3,14 @@ class ExercisesController < ApplicationController
   before_action :set_day, only: [:destroy]
 
   def create
-    @day = Day.find(params[:day_id])
-    Exercise::Create.call(params, day: @day)
-    @month = Month.find(@day.month_id)
-    @year = Year.find(@month.year_id)
-    scopes(@day)
-    @exercise = @day.exercises.last(2).first
+    @result = Exercise::Create.call(params)
+    if @result.success?
+      @day = @result[:day]
+      @month = @result[:month]
+      @year = @result[:year]
+      @exercise = @result[:exercise]
+      scopes(@day)
+    end
 
     respond_to do |format|
       format.js
