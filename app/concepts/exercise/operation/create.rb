@@ -1,7 +1,8 @@
 class Exercise::Create < Trailblazer::Operation
-  step :process!
+  step :process
 
-  def process!(options, day)
+  def process(ctx)
+    binding.pry
     day = Day.find(options['params'][:day_id])
     day.exercises.create(options['params'].require(:exercise).permit(:status, :begining, :ending, :description, :created_at, :day_id, :id))
     last_exercise = day.exercises.last
