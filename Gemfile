@@ -10,7 +10,7 @@ end
 gem 'rails', '~> 5.0.2'
 # Use postgresql as the database for Active Record
 gem 'pg', '~> 0.18'
-# Use Puma as the app server 
+# Use Puma as the app server
 gem 'puma', '~> 3.0'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
@@ -41,12 +41,8 @@ gem 'ruby-fann'
 gem 'time_difference'
 gem 'validates_timeliness'
 gem 'devise-bootstrap-views', '~> 1.0'
-gem 'dry-validation'
-gem 'reform'
-gem 'reform-rails'
-gem 'simple_endpoint'
-gem 'trailblazer-rails'
-gem 'trailblazer-cells'
+gem 'dry-validation', '0.11.1'
+gem 'trailblazer-rails', '~> 2.1.0'
 
 # gem 'jquery-turbolinks'
 # gem 'active_median'
@@ -69,6 +65,7 @@ gem 'jbuilder', '~> 2.5'
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
+  gem 'rspec-rails'
 end
 
 group :development do
