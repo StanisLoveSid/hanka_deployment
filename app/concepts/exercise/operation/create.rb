@@ -17,11 +17,11 @@ class Exercise::Create < Trailblazer::Operation
     ctx[:day] = Day.find(params[:day_id])
   end
 
-  def set_month(ctx)
+  def set_month(ctx, params:, **)
     ctx[:month] = Month.find(ctx[:day].month_id)
   end
 
-  def set_year(ctx)
+  def set_year(ctx, params:, **)
     ctx[:year] = Year.find(ctx[:month].year_id)
   end
 
@@ -51,7 +51,7 @@ class Exercise::Create < Trailblazer::Operation
                     updated_at: ctx[:ending])
   end
 
-  def set_exercise(ctx)
+  def set_exercise(ctx, params:, **)
     ctx[:exercise] = ctx[:day].exercises.last(2).first
   end
 end
