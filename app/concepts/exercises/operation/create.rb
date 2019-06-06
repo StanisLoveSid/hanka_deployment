@@ -1,17 +1,22 @@
-class Exercise::Create < Trailblazer::Operation
+class Exercises::Operation::Create < Trailblazer::Operation
   step :set_day
   step :set_month
   step :set_year
   step Model( Exercise, :new )
   step :override_params
-  step Contract::Build( constant: Exercise::Contract::Create )
-  step Contract::Validate(key: 'exercise')
+  step Contract::Build(constant: Exercises::Contract::Create)
+  # step :check_me
+  step Contract::Validate()
   step Contract::Persist(method: :sync)
   step :calculate_duration
   step :set_begining
   step :set_ending
   step :save_time
   step :set_exercise
+
+  def check_me(ctx, **)
+    binding.pry
+  end
 
   def set_day(ctx, params:, **)
     ctx[:day] = Day.find(params[:day_id])
@@ -30,6 +35,7 @@ class Exercise::Create < Trailblazer::Operation
   end
 
   def calculate_duration(ctx, model:, **)
+    binding.pry
     ctx[:duration] = TimeDifference.between(model.begining, model.ending).in_hours
   end
 
