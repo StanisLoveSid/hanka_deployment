@@ -6,7 +6,7 @@ class Exercises::Operation::Create < Trailblazer::Operation
   step :override_params
   step Contract::Build(constant: Exercises::Contract::Create)
   # step :check_me
-  step Contract::Validate()
+  step Contract::Validate(key: :exercise)
   step Contract::Persist(method: :sync)
   step :calculate_duration
   step :set_begining
@@ -35,7 +35,6 @@ class Exercises::Operation::Create < Trailblazer::Operation
   end
 
   def calculate_duration(ctx, model:, **)
-    binding.pry
     ctx[:duration] = TimeDifference.between(model.begining, model.ending).in_hours
   end
 
