@@ -3,7 +3,7 @@ class ExercisesController < ApplicationController
   before_action :set_day, only: [:destroy]
 
   def create
-    @result = Exercises::Create.call(params: params)
+    @result = Exercises::Operation::Create.call(params: params)
     if @result.success?
       @day = @result[:day]
       @month = @result[:month]

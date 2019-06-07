@@ -1,63 +1,44 @@
 class Exercises::Operation::Create < Trailblazer::Operation
-  step :set_day
-  step :set_month
-  step :set_year
   step Model( Exercise, :new )
-  step :override_params
   step Contract::Build(constant: Exercises::Contract::Create)
-  # step :check_me
   step Contract::Validate(key: :exercise)
   step Contract::Persist(method: :sync)
-  step :calculate_duration
-  step :set_begining
-  step :set_ending
-  step :save_time
+  step :set_date
   step :set_exercise
+  step :calculate_duration
+  step :set_time
+  step :save_time
 
-  def check_me(ctx, **)
-    binding.pry
-  end
-
-  def set_day(ctx, params:, **)
-    ctx[:day] = Day.find(params[:day_id])
-  end
-
-  def set_month(ctx, params:, **)
+  def set_date(ctx, model:, **)
+    ctx[:day] = Day.find(model.day_id)
     ctx[:month] = Month.find(ctx[:day].month_id)
-  end
-
-  def set_year(ctx, params:, **)
     ctx[:year] = Year.find(ctx[:month].year_id)
-  end
-
-  def override_params(ctx, params:, **)
-    params[:exercise][:day_id] = params[:day_id]
   end
 
   def calculate_duration(ctx, model:, **)
     ctx[:duration] = TimeDifference.between(model.begining, model.ending).in_hours
   end
 
-  def set_begining(ctx, params:, **)
-    time = params[:exercise][:begining].to_time
-    ctx[:begining] = DateTime.new(ctx[:day].created_at.year, ctx[:day].created_at.month, ctx[:day].created_at.day,
-                                  time.hour, time.min).strftime('%Y-%m-%d %H:%M')
+  def set_time(ctx, model:, day:, **)
+    begining = model.begining.to_time
+    ending = model.ending.to_time
+    date_formating = lambda do |current_day, time|
+      DateTime.new(current_day.year, current_day.month, current_day.day, time.hour, time.min)
+                   .strftime('%Y-%m-%d %H:%M')
+    end
+
+    ctx[:ending] = date_formating.call(day.created_at, ending)
+    ctx[:begining] = date_formating.call(day.created_at, begining)
   end
 
-  def set_ending(ctx, params:, **)
-    time = params[:exercise][:ending].to_time
-    ctx[:ending] = DateTime.new(ctx[:day].created_at.year, ctx[:day].created_at.month, ctx[:day].created_at.day,
-                                  time.hour, time.min).strftime('%Y-%m-%d %H:%M')
+  def save_time(ctx, model:, duration:, begining:, ending:, **)
+    model.update(duration: duration, begining: begining,
+                    ending: ending, created_at: begining,
+                    updated_at: ending)
   end
 
-  def save_time(ctx, model:, **)
-    model.update(duration: ctx[:duration], begining: ctx[:begining],
-                    ending: ctx[:ending], created_at: ctx[:begining],
-                    updated_at: ctx[:ending])
-  end
-
-  def set_exercise(ctx, params:, **)
-    ctx[:exercise] = ctx[:day].exercises.last(2).first
+  def set_exercise(ctx, day:, **)
+    ctx[:exercise] = day.exercises.last
   end
 end
 
