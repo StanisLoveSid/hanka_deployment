@@ -2,7 +2,7 @@ class Exercises::Operation::Create < Trailblazer::Operation
   step Model( Exercise, :new )
   step Contract::Build(constant: Exercises::Contract::Create)
   step Contract::Validate(key: :exercise)
-  step Contract::Persist(method: :sync)
+  step Contract::Persist()
   step :set_date
   step :set_exercise
   step :calculate_duration
