@@ -1,3 +1,13 @@
+<%= form_for(:sugar_level, url: {controller: "days", action: "glucometer_analysis"}, method: :get) do |form| %>	
+    <%= form.label :email %>
+    <%= form.text_field :email %>	
+    <%= form.label :mmol %>
+    <%= form.text_field :mmol %>
+    <%= form.label :date %>	
+    <%= form.text_field :date %>	
+    <%= form.submit "Submit"  %>	
+<% end %>
+
 <% if user_signed_in? %>
 <% if current_user.role == "doctor" %>
 

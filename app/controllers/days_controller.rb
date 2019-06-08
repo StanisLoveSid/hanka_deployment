@@ -87,29 +87,7 @@ class DaysController < ApplicationController
   end
 
   def glucometer_analysis
-    found_year = 0 ; found_month = 0 ; found_day = 0
-    user = User.find_by(email: params[:sugar_level][:email])
-    date = params[:sugar_level][:date].to_datetime
-    if user.years.map(&:year_number).include? date.year
-      user_years = user.years.map {|year| { year.year_number => year.id } }
-      user_years.each { |year| found_year = Year.find year[date.year] unless year[date.year].nil? }
-    else
-      found_year = Year.create(user_id: user.id, created_at: date, year_number: date.year)
-    end
-    if found_year.months.map{|month| month.created_at.strftime("%Y-%m") }.include? params[:sugar_level][:date].to_date.strftime("%Y-%m")
-      all_months = found_year.months.map { |month| { month.created_at.month => month.id } }
-      all_months.each { |month| found_month = Month.find month[date.month]  unless month[date.month].nil? }
-    else
-      found_month = Month.create(year_id: found_year.id, user_id: user.id, month_name: Date::MONTHNAMES[date.month], created_at: date)
-    end
-    if found_month.days.map(&:created_at).include? params[:sugar_level][:date].to_date
-      all_days =  found_month.days.map { |day| { day.day_number => day.id } }
-      all_days.each { |day| found_day = Day.find day[date.day]  unless day[date.day].nil? }
-      found_day.sugar_levels.create(mmol: params[:sugar_level][:mmol], created_at: date)
-    else
-      day = Day.create(day_number: date.day, created_at: date, user_id: user.id, month_id: found_month.id)
-      day.sugar_levels.create(mmol: params[:sugar_level][:mmol], created_at: date)
-    end
+    GlucometerBsls::Operation::Create.call(params: params)
     redirect_to root_path
   end
 

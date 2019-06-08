@@ -4,7 +4,6 @@ class WarninggsController < ApplicationController
 
   def create
     @result = Warninggs::Operation::Create.call(params: params)
-    binding.pry
     if @result.success?
       @day = @result[:day]
       @month = @result[:month]

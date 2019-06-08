@@ -1,0 +1,2 @@
+class GlucometerBsl < ApplicationRecord
+end
