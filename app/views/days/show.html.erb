@@ -450,6 +450,7 @@
 								<div class="input-group">
 									<span class="input-group-addon"><i class="fa fa-question" aria-hidden="true"></i></span>
 									<%= f.text_field :reason, class: "form-control", id: "reason", placeholder: "reason" %>
+									<%= f.hidden_field :day_id, value: @day.id %>
 								</div>
 							</div>
 						</div>

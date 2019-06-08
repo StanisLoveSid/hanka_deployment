@@ -3,20 +3,16 @@ class WarninggsController < ApplicationController
   before_action :set_day, only: [:destroy]
 
   def create
-    @day = Day.find(params[:day_id])
-    @month = Month.find(@day.month_id)
-    @year = Year.find(@month.year_id)
-    @day.warninggs.create(warningg_params)
-    last_warningg = @day.warninggs.last
-    time_creation_begining = "#{@day.created_at.year}"+"-"+
-      "#{@day.created_at.month}"+"-"+"#{@day.created_at.day} #{params[:warningg][:begining]}"
-    time_creation_ending = "#{@day.created_at.year}"+"-"+
-      "#{@day.created_at.month}"+"-"+"#{@day.created_at.day} #{params[:warningg][:ending]}"
-    last_warningg.update(begining: time_creation_begining,
-                         ending: time_creation_ending, created_at: time_creation_begining,
-                         updated_at: time_creation_ending)
-    scopes(@day)
-    @warningg = @day.warninggs.last(2).first
+    @result = Warninggs::Operation::Create.call(params: params)
+    binding.pry
+    if @result.success?
+      @day = @result[:day]
+      @month = @result[:month]
+      @year = @result[:year]
+      @warningg = @result[:warningg]
+      scopes(@day)
+    end
+
     respond_to do |format|
       format.js
     end

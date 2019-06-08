@@ -12,4 +12,14 @@ FactoryBot.define do
       create_list(:exercise, evaluator.exercises_amount, day: day)
     end
   end
+
+  trait :with_warninggs do
+    transient do
+      warninggs_amount { 1 }
+    end
+
+    after(:create) do |day, evaluator|
+      create_list(:warningg, evaluator.warninggs_amount, day: day)
+    end
+  end
 end
