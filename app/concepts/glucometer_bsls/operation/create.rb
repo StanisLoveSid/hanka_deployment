@@ -1,5 +1,5 @@
 class GlucometerBsls::Operation::Create < Trailblazer::Operation
-  step Model( GlucometerBsl, :new )  
+  step Model( GlucometerBsl, :new )
   step Contract::Build(constant: GlucometerBsls::Contract::Create)
   step Contract::Validate(key: :sugar_level)
   step Contract::Persist()
@@ -8,18 +8,18 @@ class GlucometerBsls::Operation::Create < Trailblazer::Operation
   step :find_or_create_year
   step :find_or_create_month
   step :find_or_create_day
-  step :create_bsl  
+  step :create_bsl
 
   def set_up_date(ctx, params:, **)
     ctx[:date] = params[:sugar_level][:date].to_datetime
   end
 
-  def find_user(ctx, params:, **)
-    ctx[:user] = User.find_by(email: params[:sugar_level][:email])
+  def find_user(ctx, model:, **)
+    ctx[:user] = User.find_by(email: model.email)
   end
 
   def find_or_create_year(ctx, date:, user:, **)
-    if user.years.map(&:year_number).include? date.year
+    if user.years.exists?( years: { year_number: date.year } )
       ctx[:found_year] = Year.find user.years.map {|year| { year.year_number => year.id } }
                                              .select { |year| year[date.year].present? }.first[date.year]
     else
