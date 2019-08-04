@@ -5,10 +5,7 @@ class WarninggsController < ApplicationController
   def create
     @result = Warninggs::Operation::Create.call(params: params)
     if @result.success?
-      @day = @result[:day]
-      @month = @result[:month]
-      @year = @result[:year]
-      @warningg = @result[:warningg]
+      @day, @month, @year, @warningg = @result.exclude(:day, :month, :year, :warningg).values
       scopes(@day)
     end
 
