@@ -15,7 +15,7 @@
 //= require jsapi
 //= require highcharts
 //= require chartkick
-//= require highcharts/highcharts-more
+//= require highcharts
 //= require jquery.min
 //= require bootstrap.min
 //= require jquery-clock-timepicker

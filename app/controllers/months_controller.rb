@@ -67,9 +67,14 @@ class MonthsController < ApplicationController
     @status_hash[:Normal] = @sug.flatten.count("Normal")
     @total = []
     @month.days.each do |day|
-      mmols = day.sugar_levels.map {|e| e.mmol}
-      time  = day.sugar_levels.map {|e| e.created_at}
-      @total << {name: "#{day.created_at.day}", data: time.zip(mmols).to_h, type: "area"}
+      mmols = day.sugar_levels.map {|e| e.mmol.to_f}
+      time  = day.sugar_levels.map {|e| (e.created_at.to_i * 1000)}
+      @total << time.zip(mmols)
+    end
+    # binding.pry
+    respond_to do |format|
+      format.html
+      format.json { render json: @total.flatten(1).sort }
     end
   end
 

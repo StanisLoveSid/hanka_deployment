@@ -1,5 +1,5 @@
 <%= link_to "Back to year", "/years/#{@year.id}" %>
-<%= line_chart @total %>
+<div id="sugarMonth" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 <%= pie_chart(@status_hash) %>
 
 
@@ -111,8 +111,6 @@
 </div>
 <% end %>
 </div>
-
-
 
 <style>
 
