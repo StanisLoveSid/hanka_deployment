@@ -1,7 +1,6 @@
 $.getJSON(
     `${location}.json`,
     (data) => {
-
         Highcharts.chart('sugarMonth', {
             chart: {
                 zoomType: 'x'
