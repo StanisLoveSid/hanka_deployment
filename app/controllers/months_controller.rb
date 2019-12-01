@@ -60,11 +60,11 @@ class MonthsController < ApplicationController
     calendar_days(@month)
     calendar_months(@year)
     @days_collection = month_type - @month.days.map(&:day_number)
-    @status_hash = {}
+    @status_array = []
     @sug = @month.days.map{|day| day.sugar_levels.map{|sl| sl.status }}
-    @status_hash[:Low] = @sug.flatten.count("Low")
-    @status_hash[:High] = @sug.flatten.count("High")
-    @status_hash[:Normal] = @sug.flatten.count("Normal")
+    @status_array << { name: 'Low', y: @sug.flatten.count("Low") }
+    @status_array << { name: 'High', y: @sug.flatten.count("High") }
+    @status_array << { name: 'Normal', y: @sug.flatten.count("Normal") }
     @total = []
     @month.days.each do |day|
       mmols = day.sugar_levels.map {|e| e.mmol.to_f}
@@ -74,7 +74,7 @@ class MonthsController < ApplicationController
     # binding.pry
     respond_to do |format|
       format.html
-      format.json { render json: @total.flatten(1).sort }
+      format.json { render json: { line: @total.flatten(1).sort, pie: @status_array } }
     end
   end
 

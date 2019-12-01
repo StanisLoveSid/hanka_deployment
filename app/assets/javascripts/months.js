@@ -53,8 +53,42 @@ $.getJSON(
             series: [{
                 type: 'area',
                 name: 'mmol/l',
-                data: data
+                data: data.line
             }]
         });
     }
 );
+
+$.getJSON(
+    `${location}.json`,
+    (data) => {
+        Highcharts.chart('pieMonth', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: 'Sugar level compensation'
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                    }
+                }
+            },
+            series: [{
+                name: 'Compensation',
+                colorByPoint: true,
+                data: data.pie
+            }]
+        });
+})
